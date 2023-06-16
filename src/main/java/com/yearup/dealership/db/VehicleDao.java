@@ -49,7 +49,26 @@ public class VehicleDao {
 
     public List<Vehicle> searchByMakeModel(String make, String model) {
         // TODO: Implement the logic to search vehicles by make and model
-        return new ArrayList<>();
+        List<Vehicle> results = new ArrayList<>();
+        String query = "SELECT * FROM vehicles \n" +
+                "WHERE make = ? AND model = ?;";
+
+        try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, make);
+            statement.setString(2, model);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Vehicle vehicle = createVehicleFromResultSet(resultSet);
+                    results.add(vehicle);
+                }
+            }
+
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
     }
 
     public List<Vehicle> searchByYearRange(int minYear, int maxYear) {
