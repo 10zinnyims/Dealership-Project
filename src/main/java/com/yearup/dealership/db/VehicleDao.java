@@ -139,15 +139,30 @@ public class VehicleDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return results;
     }
 
     public List<Vehicle> searchByType(String type) {
         // TODO: Implement the logic to search vehicles by type
-        return new ArrayList<>();
-    }
+        List<Vehicle> results = new ArrayList<>();
+        String query = "SELECT * FROM vehicles \n" +
+                "WHERE vehicleType = ?";
 
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, type);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Vehicle vehicle = createVehicleFromResultSet(resultSet);
+                    results.add(vehicle);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
     private Vehicle createVehicleFromResultSet(ResultSet resultSet) throws SQLException {
         Vehicle vehicle = new Vehicle();
         vehicle.setVin(resultSet.getString("VIN"));
