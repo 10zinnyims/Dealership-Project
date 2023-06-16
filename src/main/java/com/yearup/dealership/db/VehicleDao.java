@@ -24,7 +24,27 @@ public class VehicleDao {
 
     public List<Vehicle> searchByPriceRange(double minPrice, double maxPrice) {
         // TODO: Implement the logic to search vehicles by price range
-        return new ArrayList<>();
+        List<Vehicle> results = new ArrayList<>();
+        String query = "SELECT * \n" +
+                "FROM vehicles \n" +
+                "where price >= ? and price <= ?;";
+
+        try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setDouble(1, minPrice);
+            statement.setDouble(2, maxPrice);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Vehicle vehicle = createVehicleFromResultSet(resultSet);
+                    results.add(vehicle);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
     }
 
     public List<Vehicle> searchByMakeModel(String make, String model) {
