@@ -73,12 +73,49 @@ public class VehicleDao {
 
     public List<Vehicle> searchByYearRange(int minYear, int maxYear) {
         // TODO: Implement the logic to search vehicles by year range
-        return new ArrayList<>();
+        List<Vehicle> results = new ArrayList<>();
+        String query = "SELECT * FROM vehicles \n" +
+                "WHERE year >= ? and year <= ?;";
+
+        try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, minYear);
+            statement.setInt(2, maxYear);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Vehicle vehicle = createVehicleFromResultSet(resultSet);
+                    results.add(vehicle);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
     }
 
     public List<Vehicle> searchByColor(String color) {
         // TODO: Implement the logic to search vehicles by color
-        return new ArrayList<>();
+        List<Vehicle> results = new ArrayList<>();
+        String query = "SELECT * \n" +
+                "FROM vehicles \n" +
+                "where color = ?;";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setString(1, color);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Vehicle vehicle = createVehicleFromResultSet(resultSet);
+                    results.add(vehicle);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
     }
 
     public List<Vehicle> searchByMileageRange(int minMileage, int maxMileage) {
